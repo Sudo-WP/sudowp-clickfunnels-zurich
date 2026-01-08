@@ -1,5 +1,5 @@
 <div class="copyrightInfo">
-    <p><strong style="float: right;font-weight: 600;font-size: 11px;text-align: right;">Running Version 3.1.1</strong> Copyright 2016+ &copy; Eitson, LLC</p>
+    <p><strong style="float: right;font-weight: 600;font-size: 11px;text-align: right;">Running Version 0.1.0</strong> Copyright 2026+ &copy; WP Republic</p>
 </div>
 <style>
 	.copyrightInfo {

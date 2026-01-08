@@ -1,15 +1,18 @@
 <?php
 /**
-    * Plugin Name: ClickFunnels
-    * Plugin URI: https://www.clickfunnels.com
-    * Description: Connect to your ClickFunnels account with simple authorization key and show any ClickFunnels page as your homepage or as 404 error pages or simply choose any of your pages and make clean URLs to your ClickFunnels pages. Don't have an account? <a target="_blank" href="https://www.clickfunnels.com">Sign up for your 2 week <em>free</em> trial now.</a>
-    * Version: 3.1.1
-    * Author: Etison, LLC
-    * Author URI: https://www.clickfunnels.com
+    * Plugin Name: ClickFunnels Zurich (Patched)
+    * Plugin URI: https://github.com/makmour/clickfunnels-zurich
+    * Description: This is the patched version for the original WordPress Clickfunnels plugin, version <= 3.1.1 which was vulnerable under a Stored Cross-Site Scripting attack.
+    * Version: 0.1.0
+    * Author: WP Republic
+    * Author URI: https://github.com/makmour/
 */
 
-define( "CF_API_URL", "https://api.clickfunnels.com/" );
-class ClickFunnels {
+if ( ! defined( 'CF_API_URL' ) ) {
+    define( "CF_API_URL", "https://api.clickfunnels.com/" );
+}
+
+class ClickFunnelsZurich {
     public function __construct() {
         add_action( "init", array( $this, "create_custom_post_type" ) );
         add_action( 'plugins_loaded', 'upgrade_existing_posts' );
@@ -816,4 +819,4 @@ function clickfunnels_edit_page_settings() {
 }
 
 // Do the thing
-$cf = new ClickFunnels();
+$cf = new ClickFunnelsZurich();
