@@ -3,10 +3,15 @@
     * Plugin Name: ClickFunnels Zurich (Patched)
     * Plugin URI: https://github.com/makmour/clickfunnels-zurich
     * Description: This is the patched version for the original WordPress Clickfunnels plugin, version <= 3.1.1 which was vulnerable under a Stored Cross-Site Scripting attack.
-    * Version: 0.1.0
+    * Version: 0.1.1
     * Author: WP Republic
     * Author URI: https://github.com/makmour/
 */
+
+// Define Version Constant
+if ( ! defined( 'CF_ZURICH_VERSION' ) ) {
+    define( 'CF_ZURICH_VERSION', '0.1.1' );
+}
 
 if ( ! defined( 'CF_API_URL' ) ) {
     define( "CF_API_URL", "https://api.clickfunnels.com/" );
@@ -534,25 +539,30 @@ function clickfunnels_loadjquery($hook) {
 add_action('admin_enqueue_scripts', 'clickfunnels_loadjquery');
 
 // ****************************************************************************************************************************
-// Blog Post Embed Shortcode
+// Blog Post Embed Shortcode - PATCHED
 function clickfunnels_embed( $atts ) {
     $a = shortcode_atts( array(
         'height' => '650',
         'scroll' => 'on',
-        'url' => '<?php echo CF_API_URL ?>',
+        'url' => defined('CF_API_URL') ? CF_API_URL : '',
     ), $atts );
 
-    return "<iframe src='{$a['url']}' width='100%' height='{$a['height']}' frameborder='0' scrolling='{$a['scroll']}'></iframe>";
+    $url = esc_url( $a['url'] );
+    $height = esc_attr( $a['height'] );
+    $scroll = esc_attr( $a['scroll'] );
+
+    return "<iframe src='{$url}' width='100%' height='{$height}' frameborder='0' scrolling='{$scroll}'></iframe>";
 }
 add_shortcode( 'clickfunnels_embed', 'clickfunnels_embed' );
 
 // ****************************************************************************************************************************
-// ClickPop Shortcode
+// ClickPop Shortcode - PATCHED
 function clickfunnels_clickpop_script() {
     wp_register_script( 'cf_clickpop', 'https://app.clickfunnels.com/assets/cfpop.js', array(), '1.0.0', true );
     wp_enqueue_script( 'cf_clickpop' );
 }
 add_action( 'wp_enqueue_scripts', 'clickfunnels_clickpop_script' );
+
 function clickfunnels_clickpop( $atts, $content = null ) {
     $a = shortcode_atts( array(
         'exit' => 'false',
@@ -560,26 +570,33 @@ function clickfunnels_clickpop( $atts, $content = null ) {
         'id' => '',
         'subdomain' => '',
     ), $atts );
-    if ($a['delay'] != '') {
-        $delayTime = "{$a['delay']}000";
-        $delay_js = "<script>window.onload=function(){setTimeout(clickpop_timed_click, $delayTime);}; function clickpop_timed_click(){for (links=document.getElementsByTagName('a'), i=0; i < links.length; ++i) link=links[i], null !=link.getAttribute('href') && link.getAttribute('href').match(/\/optin_box\/(([a-zA-Z]|\d){16})/i) && (cf_showpopup(link.getAttribute('href'))); function openPopup(e){if (ID=e.hashCode(), currentPopup=ID, cf_iframe=document.getElementById(ID), null==document.getElementById(ID)){var t=document.getElementsByTagName(\"body\"), n=e; document.body.innerHTML +='<iframe src=\"' + n + '?iframe=true\" id=\"' + ID + '\" style=\"position: fixed !important; left: 0px; top: 0px !important; width: 100%; border: none; z-index: 999999999999999 !important; visibility: hidden; \"></iframe>'}document.getElementById(ID).style.width=viewWidth + \"px\", document.getElementById(ID).style.height=viewHeight + \"px\", document.getElementById(ID).style.visibility=\"visible\", makeWindowModal(); var i=document.documentElement, t=document.body, o=i && i.scrollLeft || t && t.scrollLeft || 0, d=i && i.scrollTop || t && t.scrollTop || 0; document.getElementById(ID).style.top=0 + \"px\", document.getElementById(ID).style.left=o + \"px\"; var l=0; return reanimateMessageIntervalID=setInterval(function(){iframe=document.getElementById(ID), void 0 !=iframe && iframe.contentWindow.postMessage(\"reanimate\", \"*\"), ++l >=15 && clearInterval(reanimateMessageIntervalID)}, 1e3), !1}function cf_showpopup(url){openPopup(url);}}</script>";
-    } else {
-        $delayTime = '';
-        $delay_js = "";
-    }
-    if (strpos($a['subdomain'], '.') !== false) {
-        return "<a href='https://{$a['subdomain']}/optin_box/{$a['id']}' data-exit='{$a['exit']}'>$content</a>$delay_js";
-    }
-    else {
-      return "<a href='https://{$a['subdomain']}.clickfunnels.com/optin_box/{$a['id']}' data-exit='{$a['exit']}'>$content</a>$delay_js";
+
+    $id = sanitize_text_field( $a['id'] );
+    $subdomain = sanitize_text_field( $a['subdomain'] );
+    $exit = esc_attr( $a['exit'] );
+    $delay_js = '';
+
+    if ( ! empty( $a['delay'] ) ) {
+        $delay_val = intval( $a['delay'] );
+        $delayTime = "{$delay_val}000";
+        // Safe output: integer context for delayTime
+        $delay_js = "<script>window.onload=function(){setTimeout(clickpop_timed_click, {$delayTime});}; function clickpop_timed_click(){for (links=document.getElementsByTagName('a'), i=0; i < links.length; ++i) link=links[i], null !=link.getAttribute('href') && link.getAttribute('href').match(/\/optin_box\/(([a-zA-Z]|\d){16})/i) && (cf_showpopup(link.getAttribute('href'))); function openPopup(e){if (ID=e.hashCode(), currentPopup=ID, cf_iframe=document.getElementById(ID), null==document.getElementById(ID)){var t=document.getElementsByTagName(\"body\"), n=e; document.body.innerHTML +='<iframe src=\"' + n + '?iframe=true\" id=\"' + ID + '\" style=\"position: fixed !important; left: 0px; top: 0px !important; width: 100%; border: none; z-index: 999999999999999 !important; visibility: hidden; \"></iframe>'}document.getElementById(ID).style.width=viewWidth + \"px\", document.getElementById(ID).style.height=viewHeight + \"px\", document.getElementById(ID).style.visibility=\"visible\", makeWindowModal(); var i=document.documentElement, t=document.body, o=i && i.scrollLeft || t && t.scrollLeft || 0, d=i && i.scrollTop || t && t.scrollTop || 0; document.getElementById(ID).style.top=0 + \"px\", document.getElementById(ID).style.left=o + \"px\"; var l=0; return reanimateMessageIntervalID=setInterval(function(){iframe=document.getElementById(ID), void 0 !=iframe && iframe.contentWindow.postMessage(\"reanimate\", \"*\"), ++l >=15 && clearInterval(reanimateMessageIntervalID)}, 1e3), !1}function cf_showpopup(url){openPopup(url);}}</script>";
     }
 
+    $url = '';
+    if (strpos($subdomain, '.') !== false) {
+        $url = "https://{$subdomain}/optin_box/{$id}";
+    } else {
+        $url = "https://{$subdomain}.clickfunnels.com/optin_box/{$id}";
+    }
+
+    return "<a href='" . esc_url( $url ) . "' data-exit='{$exit}'>" . do_shortcode($content) . "</a>{$delay_js}";
 }
 add_shortcode( 'clickfunnels_clickpop', 'clickfunnels_clickpop' );
 
 
 // ****************************************************************************************************************************
-// ClickOptin Shortcode
+// ClickOptin Shortcode - PATCHED
 function clickfunnels_clickoptin( $atts ) {
     $a = shortcode_atts( array(
         'button_text' => 'Subscribe To Our Mailing List',
@@ -590,73 +607,85 @@ function clickfunnels_clickoptin( $atts ) {
         'input_icon' => 'show',
         'redirect' => '',
     ), $atts );
-    if ($a['button_text'] == '') {
-        $button_text = 'Subscribe To Our Mailing List';
-    } else {
-        $button_text = $a['button_text'];
-    }
 
-    if ($a['placeholder'] == '') {
-        $placeholder = 'Enter Your Email Address Here';
-    } else {
-        $placeholder = $a['placeholder'];
-    }
+    $button_text = empty( $a['button_text'] ) ? 'Subscribe To Our Mailing List' : $a['button_text'];
+    $placeholder = empty( $a['placeholder'] ) ? 'Enter Your Email Address Here' : $a['placeholder'];
 
-    if (strpos($a['subdomain'], '.') !== false) {
-        $subdomain = $a['subdomain'];
-    } else {
-      $subdomain = $a['subdomain'] . '.clickfunnels.com';
+    // Sanitization & Escaping
+    $id = sanitize_text_field( $a['id'] );
+    $esc_id = esc_attr( $id );
+    $esc_js_id = esc_js( $id );
+    
+    $subdomain = sanitize_text_field( $a['subdomain'] );
+    if (strpos($subdomain, '.') === false) {
+      $subdomain .= '.clickfunnels.com';
     }
+    // Subdomain safe for URL usage
+    $esc_subdomain = esc_url( "https://" . $subdomain );
+    // Strip protocol for JS usage if needed, or use full URL. 
+    // The JS below constructs URL manually: 'https://' + subdomain...
+    // So we just need the host part safe for JS.
+    $js_subdomain = esc_js( $subdomain );
+
+    $esc_placeholder = esc_attr( $placeholder );
+    $esc_button_text = esc_html( $button_text );
+    
+    $input_icon = esc_attr( $a['input_icon'] );
+    $button_color = esc_attr( $a['button_color'] );
+    $redirect = esc_js( $a['redirect'] ); // used in JS string comparison
 
     $js_file_url = plugins_url( 'js/jquery.js', __FILE__ );
 
-    return "<div id='clickoptin_cf_wrapper_".$a['id']."' class='clickoptin_".$a['theme_style']."'>
-    <input type='text' id='clickoptin_cf_email_".$a['id']."' placeholder='".$placeholder."' class='clickoptin_".$a['input_icon']."' />
-    <span class='clickoptin_".$a['button_color']."' id='clickoptin_cf_button_".$a['id']."'>".$button_text."</span>
+    // Theme style isn't in default atts, assume empty or handle notice
+    $theme_style = isset($a['theme_style']) ? esc_attr($a['theme_style']) : '';
+
+    return "<div id='clickoptin_cf_wrapper_{$esc_id}' class='clickoptin_{$theme_style}'>
+    <input type='text' id='clickoptin_cf_email_{$esc_id}' placeholder='{$esc_placeholder}' class='clickoptin_{$input_icon}' />
+    <span class='clickoptin_{$button_color}' id='clickoptin_cf_button_{$esc_id}'>{$esc_button_text}</span>
 </div>
 <script>
     if (!window.jQuery) {
       var jq = document.createElement('script'); jq.type = 'text/javascript';
-      jq.src = '" . $js_file_url . "';
+      jq.src = '" . esc_url($js_file_url) . "';
       document.getElementsByTagName('head')[0].appendChild(jq);
       var jQueries = jQuery.noConflict();
         jQueries(document).ready(function($) {
-            jQueries( '#clickoptin_cf_button_".$a['id']."' ).click(function() {
-                var check_email = jQueries( '#clickoptin_cf_email_".$a['id']."' ).val();
+            jQueries( '#clickoptin_cf_button_{$esc_js_id}' ).click(function() {
+                var check_email = jQueries( '#clickoptin_cf_email_{$esc_js_id}' ).val();
                 if (check_email != '' && /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(check_email)) {
-                    jQueries( '#clickoptin_cf_email_".$a['id']."' ).addClass('clickoptin_cf_email_green');
-                    if('".$a['redirect']."' == 'newtab') {
-                        window.open('https://".$subdomain."/instant_optin/".$a['id']."/'+jQueries( '#clickoptin_cf_email_".$a['id']."' ).val(), '_blank');
+                    jQueries( '#clickoptin_cf_email_{$esc_js_id}' ).addClass('clickoptin_cf_email_green');
+                    if('{$redirect}' == 'newtab') {
+                        window.open('https://{$js_subdomain}/instant_optin/{$esc_js_id}/'+jQueries( '#clickoptin_cf_email_{$esc_js_id}' ).val(), '_blank');
                     }
                     else {
-                        window.location.href = 'https://".$subdomain."/instant_optin/".$a['id']."/'+jQueries( '#clickoptin_cf_email_".$a['id']."' ).val();
+                        window.location.href = 'https://{$js_subdomain}/instant_optin/{$esc_js_id}/'+jQueries( '#clickoptin_cf_email_{$esc_js_id}' ).val();
                     }
                 }
                 else {
-                   jQueries( '#clickoptin_cf_email_".$a['id']."' ).addClass('clickoptin_cf_email_red');
+                   jQueries( '#clickoptin_cf_email_{$esc_js_id}' ).addClass('clickoptin_cf_email_red');
                 }
             });
         });
     }
     else {
       var jq = document.createElement('script'); jq.type = 'text/javascript';
-      jq.src = '" . $js_file_url . "';
+      jq.src = '" . esc_url($js_file_url) . "';
       document.getElementsByTagName('head')[0].appendChild(jq);
       var $ = jQuery.noConflict();
         $(document).ready(function($) {
-            $( '#clickoptin_cf_button_".$a['id']."' ).click(function() {
-                var check_email = $( '#clickoptin_cf_email_".$a['id']."' ).val();
+            $( '#clickoptin_cf_button_{$esc_js_id}' ).click(function() {
+                var check_email = $( '#clickoptin_cf_email_{$esc_js_id}' ).val();
                 if (check_email != '' && /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(check_email)) {
-                    $( '#clickoptin_cf_email_".$a['id']."' ).addClass('clickoptin_cf_email_green');
-                    if('".$a['redirect']."' == 'newtab') {
-                        window.open('https://".$subdomain."/instant_optin/".$a['id']."/'+$( '#clickoptin_cf_email_".$a['id']."' ).val(), '_blank');
+                    $( '#clickoptin_cf_email_{$esc_js_id}' ).addClass('clickoptin_cf_email_green');
+                    if('{$redirect}' == 'newtab') {
+                        window.open('https://{$js_subdomain}/instant_optin/{$esc_js_id}/'+$( '#clickoptin_cf_email_{$esc_js_id}' ).val(), '_blank');
                     }
                     else {
-                        window.location.href = 'https://".$subdomain."/instant_optin/".$a['id']."/'+$( '#clickoptin_cf_email_".$a['id']."' ).val();
+                        window.location.href = 'https://{$js_subdomain}/instant_optin/{$esc_js_id}/'+$( '#clickoptin_cf_email_{$esc_js_id}' ).val();
                     }
                 }
                 else {
-                   $( '#clickoptin_cf_email_".$a['id']."' ).addClass('clickoptin_cf_email_red');
+                   $( '#clickoptin_cf_email_{$esc_js_id}' ).addClass('clickoptin_cf_email_red');
                 }
             });
         });
@@ -664,22 +693,22 @@ function clickfunnels_clickoptin( $atts ) {
 
 </script>
 <style>
-    #clickoptin_cf_wrapper_".$a['id']." * {
+    #clickoptin_cf_wrapper_{$esc_id} * {
         margin: 0;
         padding: 0;
         position: relative;
         font-family: Helvetica, sans-serif;
     }
-    #clickoptin_cf_wrapper_".$a['id']." {
+    #clickoptin_cf_wrapper_{$esc_id} {
         padding: 5px 15px;
         border-radius: 4px;
         width: 100%;
         margin: 20px 0;
     }
-    #clickoptin_cf_wrapper_".$a['id'].".clickoptin_dropshadow_off {
+    #clickoptin_cf_wrapper_{$esc_id}.clickoptin_dropshadow_off {
         box-shadow: none;
     }
-    #clickoptin_cf_email_".$a['id']." {
+    #clickoptin_cf_email_{$esc_id} {
         display: block;
         background: #fff;
         color: #444;
@@ -690,17 +719,17 @@ function clickfunnels_clickoptin( $atts ) {
         border: 2px solid #eee;
         text-align: left;
     }
-    #clickoptin_cf_email_".$a['id'].".clickoptin_show {
+    #clickoptin_cf_email_{$esc_id}.clickoptin_show {
         background: #fff url(https://cdn2.iconfinder.com/data/icons/ledicons/email.png) no-repeat right;
         background-position: 97% 50%;
     }
-    #clickoptin_cf_email_".$a['id'].".clickoptin_cf_email_red {
+    #clickoptin_cf_email_{$esc_id}.clickoptin_cf_email_red {
         border: 2px solid #E54E3F;
     }
-    #clickoptin_cf_email_".$a['id'].".clickoptin_cf_email_green {
+    #clickoptin_cf_email_{$esc_id}.clickoptin_cf_email_green {
         border: 2px solid #339933;
     }
-    #clickoptin_cf_button_".$a['id']." {
+    #clickoptin_cf_button_{$esc_id} {
         display: block;
         font-weight: bold;
         background: #0166AE;
@@ -715,22 +744,22 @@ function clickfunnels_clickoptin( $atts ) {
         cursor: pointer;
         text-align: center;
     }
-    #clickoptin_cf_button_".$a['id'].".clickoptin_red {
+    #clickoptin_cf_button_{$esc_id}.clickoptin_red {
         background: #F05A38;
         border: 1px solid #D85132;
         border-bottom: 3px solid #D85132;
     }
-    #clickoptin_cf_button_".$a['id'].".clickoptin_green {
+    #clickoptin_cf_button_{$esc_id}.clickoptin_green {
         background: #339933;
         border: 1px solid #2E8A2E;
         border-bottom: 3px solid #2E8A2E;
     }
-    #clickoptin_cf_button_".$a['id'].".clickoptin_black {
+    #clickoptin_cf_button_{$esc_id}.clickoptin_black {
         background: #23282D;
         border: 1px solid #111;
         border-bottom: 3px solid #111;
     }
-    #clickoptin_cf_button_".$a['id'].".clickoptin_grey {
+    #clickoptin_cf_button_{$esc_id}.clickoptin_grey {
         background: #fff;
         color: #0166AE;
         border: 1px solid #eee;

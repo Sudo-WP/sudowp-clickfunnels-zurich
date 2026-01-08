@@ -1,5 +1,10 @@
 <div class="copyrightInfo">
-    <p><strong style="float: right;font-weight: 600;font-size: 11px;text-align: right;">Running Version 0.1.0</strong> Copyright 2026+ &copy; WP Republic</p>
+    <p>
+        <strong style="float: right;font-weight: 600;font-size: 11px;text-align: right;">
+            Running Version <?php echo defined('CF_ZURICH_VERSION') ? CF_ZURICH_VERSION : '0.1.0'; ?>
+        </strong> 
+        Copyright <?php echo date("Y"); ?>+ &copy; WP Republic
+    </p>
 </div>
 <style>
 	.copyrightInfo {
