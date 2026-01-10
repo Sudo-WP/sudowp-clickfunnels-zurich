@@ -1,11 +1,14 @@
 <?php
+<?php
 /**
-    * Plugin Name: ClickFunnels Zurich (Patched)
-    * Plugin URI: https://github.com/makmour/clickfunnels-zurich
-    * Description: This is the patched version for the original WordPress Clickfunnels plugin, version <= 3.1.1 which was vulnerable under a Stored Cross-Site Scripting attack.
+    * Plugin Name: Zurich for ClickFunnels (SudoWP Edition)
+    * Plugin URI: https://github.com/Sudo-WP/clickfunnels-zurich
+    * Description: An unofficial, security-patched fork of the legacy ClickFunnels plugin. Fixes Stored XSS vulnerabilities (CVE-2022-4782) and improves PHP compatibility.
     * Version: 0.1.1
-    * Author: WP Republic
-    * Author URI: https://github.com/makmour/
+    * Author: SudoWP (Maintained by WP Republic)
+    * Author URI: https://github.com/Sudo-WP
+    * Text Domain: clickfunnels-zurich
+    * License: GPLv2 or later
 */
 
 // Define Version Constant

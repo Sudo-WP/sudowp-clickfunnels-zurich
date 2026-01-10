@@ -1,24 +1,22 @@
-=== ClickFunnels Zurich (Patched) ===
+=== Zurich for ClickFunnels (SudoWP Edition) ===
 
-Contributors: WP Republic, Webcitizen
-Plugin URI: https://github.com/makmour/clickfunnels-zurich
-Author URI: https://github.com/makmour
-clickfunnels, patched
+Contributors: SudoWP, WP Republic
+Tags: clickfunnels, security-patch, legacy, landing pages, xss-fix
 Requires at least: 4.3
-Tested up to: 6.9
+Tested up to: 6.7
 Stable tag: 0.1.1
+License: GPLv2 or later
 
-This is the patched version for the original WordPress Clickfunnels plugin, version <= 3.1.1 which was vulnerable under a Stored Cross-Site Scripting attack.
+An unofficial, security-patched fork of the legacy ClickFunnels plugin.
 
 == Description ==
-Run the ClickFunnels Zurich installation and setup as you did with the original plugin.
+This is "Zurich", a community-maintained fork of the abandoned ClickFunnels Classic plugin (v3.1.1).
+It patches a critical Stored XSS vulnerability (CVE-2022-4782) and ensures compatibility with modern WordPress versions.
+
+**DISCLAIMER:** This plugin is NOT affiliated with or endorsed by ClickFunnels / Etison, LLC.
 
 == Changelog ==
 
 = Version 0.1.1 =
 * Security Fix: Patched Stored Cross-Site Scripting (XSS) vulnerability (CVE-2022-4782).
-* Security: Implemented strict data sanitization and output escaping for `clickfunnels_embed`, `clickfunnels_clickpop`, and `clickfunnels_clickoptin` shortcodes to prevent malicious script injection.
-
-= Version 0.1.0 =
-* Initial release as ClickFunnels Zurich (Patched).
-* Rebranded to WP Republic.
+* Hardening: Implemented strict sanitization and output escaping.
