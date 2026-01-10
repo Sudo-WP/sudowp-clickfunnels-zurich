@@ -1,6 +1,11 @@
 <style>.hndle {display: none !important}</style>
 <?php
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+		// --- SECURITY PATCH START: CSRF Protection (CVE-2022-47152) ---
+		// Verify the nonce to ensure the request is genuine
+		check_admin_referer( 'cf_zurich_save_settings', 'cf_zurich_nonce_field' );
+		// --- SECURITY PATCH END ---
+
 		if ($_POST['clickfunnels_api_email'] == '') {
 			echo "<div id='message' class='error notice is-dismissible' style='width: 733px;padding: 10px 12px;font-weight: bold'><i class='fa fa-times' style='margin-right: 5px;'></i> Please add an email address. <button type='button' class='notice-dismiss'><span class='screen-reader-text'>Dismiss this notice.</span></button></div>";
 		}
@@ -9,11 +14,14 @@
 		}
 		else {
 			echo "<div id='message' class='updated notice is-dismissible' style='width: 733px;padding: 10px 12px;font-weight: bold'><i class='fa fa-check' style='margin-right: 5px;'></i> Successfully updated ClickFunnels plugin settings. <button type='button' class='notice-dismiss'><span class='screen-reader-text'>Dismiss this notice.</span></button></div>";
-			update_option( 'clickfunnels_api_email', trim($_POST['clickfunnels_api_email']) );
-			update_option( 'clickfunnels_api_auth', trim($_POST['clickfunnels_api_auth']) );
-			update_option( 'clickfunnels_display_method', $_POST['clickfunnels_display_method'] );
-			update_option( 'clickfunnels_favicon_method', $_POST['clickfunnels_favicon_method'] );
-			update_option( 'clickfunnels_additional_snippet', htmlentities($_POST['clickfunnels_additional_snippet']) );
+			
+			// Improved Sanitization
+			update_option( 'clickfunnels_api_email', sanitize_email( trim($_POST['clickfunnels_api_email']) ) );
+			update_option( 'clickfunnels_api_auth', sanitize_text_field( trim($_POST['clickfunnels_api_auth']) ) );
+			update_option( 'clickfunnels_display_method', sanitize_text_field( $_POST['clickfunnels_display_method'] ) );
+			update_option( 'clickfunnels_favicon_method', sanitize_text_field( $_POST['clickfunnels_favicon_method'] ) );
+			// Keep htmlentities for snippet as it might contain code, but ensure we don't break existing logic
+			update_option( 'clickfunnels_additional_snippet', htmlentities( stripslashes( $_POST['clickfunnels_additional_snippet'] ) ) );
 		}
 	}
 ?>
@@ -49,12 +57,14 @@
 </script>
 <div id="message" class="badAPI error notice" style="display: none; width: 733px;padding: 10px 12px;font-weight: bold"><i class="fa fa-times" style="margin-right: 5px;"></i> Failed API Connection with ClickFunnels. Check <a href="edit.php?post_type=clickfunnels&page=cf_api&error=compatibility">Settings > Compatibility Check</a> for details.</div>
 <div class="api postbox" style="width: 780px;margin-top: 20px;">
-	<!-- Header -->
 	<?php include('_header.php'); ?>
 	<div class="apiSubHeader" style="padding: 18px 16px;">
 		<h2 style="font-size: 1.5em"><i class="fa fa-cog" style="margin-right: 5px"></i> Plugin Settings</h2>
 	</div>
 	<form method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI'] ); ?>">
+		
+		<?php wp_nonce_field( 'cf_zurich_save_settings', 'cf_zurich_nonce_field' ); ?>
+
 		<div class="bootstrap-wp">
 			<div id="app_sidebar">
 				<a href="#" data-tab="tab1" class="cftablink <?php if(!$_GET['error']) { echo 'active';} ?>">API Connection</a>
@@ -94,14 +104,12 @@
 					<button class="action-button shadow animate green" id="publish" style="float: right;margin-top: 10px;"><i class="fa fa-check-circle"></i> Save Settings</button>
 				</div>
 				<div id="tab5" class="cftabs" style="display: none;">
-					<!-- Reset Plugin Data -->
 					<h2>Reset Plugin Data</h2>
 					<p class="infoHelp"><i class="fa fa-question-circle" style="margin-right: 3px"></i> Delete all your ClickFunnels pages inside your WordPress blog and remove your API details to clean up the database if you are starting fresh.</p>
 					<a href="edit.php?post_type=clickfunnels&page=reset_data" class="button" style="margin-left: 51px" onclick="return confirm('Are you sure?')">Delete All Pages and API Settings</a>
 					<p class="infoHelp" style="font-style: italic;font-weight: bold;margin-right: 3px;"><i class="fa fa-exclamation-triangle" style="font-weight: bold;margin-right: 3px;color: #E54F3F;"></i> Use with caution.</p>
 				</div>
 				<div id="tab2" class="cftabs" style="display: none;">
-					<!-- Compatibility Check -->
 					<h2>Compatibility Check</h2>
 					<span class="compatCheck" id="api_check">API Authorization:  <strong class='checkSuccessDev'><i class="fa fa-spinner"></i> Connecting...</strong></span>
 					<?php
@@ -128,7 +136,6 @@
 					?>
 				</div>
 				<div id="tab1" class="cftabs">
-					<!-- Main Settings -->
 					<h2>API Connection</h2>
 					<div>
 						<div class="control-group clearfix">
