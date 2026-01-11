@@ -333,7 +333,7 @@ class SudoWPClickFunnelsZurich {
     public function add_meta_box() {
         add_meta_box(
             'clickfunnels_meta_box', // $id
-            'Setup Your ClickFunnels Page', // $title
+            'Setup Your SudoWP ClickFunnels Page', // $title
             array( $this, "show_meta_box" ),
             'clickfunnels', // $page
             'normal', // $context
@@ -356,15 +356,15 @@ class SudoWPClickFunnelsZurich {
 
     public function create_custom_post_type() {
         $labels = array(
-            'name' => _x( 'ClickFunnels', 'post type general name' ),
+            'name' => _x( 'SudoWP ClickFunnels', 'post type general name' ),
             'singular_name' => _x( 'Pages', 'post type singular name' ),
             'add_new' => _x( 'Add New', 'Click Funnels' ),
-            'add_new_item' => __( 'Add New ClickFunnels Page' ),
-            'edit_item' => __( 'Edit ClickFunnels Page' ),
+            'add_new_item' => __( 'Add New SudoWP ClickFunnels Page' ),
+            'edit_item' => __( 'Edit SudoWP ClickFunnels Page' ),
             'new_item' => __( 'Add New' ),
             'all_items' => __( 'Pages' ),
-            'view_item' => __( 'View Click Funnels Pages' ),
-            'search_items' => __( 'Search Click Funnels' ),
+            'view_item' => __( 'View SudoWP ClickFunnels Pages' ),
+            'search_items' => __( 'Search SudoWP ClickFunnels' ),
             'not_found' => __( 'No Funnels Yet <br>
                               <a href="'.get_admin_url().'post-new.php?post_type=clickfunnels">add a new page</a> or <a href="'.get_admin_url().'edit.php?post_type=clickfunnels&page=cf_api/">finish plugin set-up</a>' ),
             'parent_item_colon' => '',
