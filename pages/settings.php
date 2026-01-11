@@ -3,7 +3,8 @@
 	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		// --- SECURITY PATCH START: CSRF Protection (CVE-2022-47152) ---
 		// Verify the nonce to ensure the request is genuine
-		check_admin_referer( 'cf_zurich_save_settings', 'cf_zurich_nonce_field' );
+		// UPDATED: Prefixed nonce for SudoWP standardization
+		check_admin_referer( 'sudowp_cf_zurich_save_settings', 'sudowp_cf_zurich_nonce_field' );
 		// --- SECURITY PATCH END ---
 
 		if ($_POST['clickfunnels_api_email'] == '') {
@@ -63,7 +64,7 @@
 	</div>
 	<form method="post" action="<?php echo str_replace( '%7E', '~', $_SERVER['REQUEST_URI'] ); ?>">
 		
-		<?php wp_nonce_field( 'cf_zurich_save_settings', 'cf_zurich_nonce_field' ); ?>
+		<?php wp_nonce_field( 'sudowp_cf_zurich_save_settings', 'sudowp_cf_zurich_nonce_field' ); ?>
 
 		<div class="bootstrap-wp">
 			<div id="app_sidebar">

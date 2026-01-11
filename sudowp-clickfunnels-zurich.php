@@ -1,26 +1,25 @@
 <?php
-<?php
 /**
-    * Plugin Name: Zurich for ClickFunnels (SudoWP Edition)
-    * Plugin URI: https://github.com/Sudo-WP/clickfunnels-zurich
+    * Plugin Name: SudoWP Zurich for ClickFunnels
+    * Plugin URI: https://github.com/Sudo-WP/sudowp-clickfunnels-zurich
     * Description: An unofficial, security-patched fork of the legacy ClickFunnels plugin. Fixes Stored XSS vulnerabilities (CVE-2022-4782) and improves PHP compatibility.
     * Version: 0.1.1
     * Author: SudoWP (Maintained by WP Republic)
     * Author URI: https://github.com/Sudo-WP
-    * Text Domain: clickfunnels-zurich
+    * Text Domain: sudowp-clickfunnels-zurich
     * License: GPLv2 or later
 */
 
-// Define Version Constant
-if ( ! defined( 'CF_ZURICH_VERSION' ) ) {
-    define( 'CF_ZURICH_VERSION', '0.1.1' );
+// Define Version Constant (Renamed for SudoWP)
+if ( ! defined( 'SUDOWP_CF_ZURICH_VERSION' ) ) {
+    define( 'SUDOWP_CF_ZURICH_VERSION', '0.1.1' );
 }
 
 if ( ! defined( 'CF_API_URL' ) ) {
     define( "CF_API_URL", "https://api.clickfunnels.com/" );
 }
 
-class ClickFunnelsZurich {
+class SudoWPClickFunnelsZurich {
     public function __construct() {
         add_action( "init", array( $this, "create_custom_post_type" ) );
         add_action( 'plugins_loaded', 'upgrade_existing_posts' );
@@ -851,4 +850,4 @@ function clickfunnels_edit_page_settings() {
 }
 
 // Do the thing
-$cf = new ClickFunnelsZurich();
+$cf = new SudoWPClickFunnelsZurich();

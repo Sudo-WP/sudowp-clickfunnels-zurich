@@ -1,14 +1,14 @@
-# Zurich for ClickFunnels (SudoWP Edition)
+# SudoWP Zurich for ClickFunnels
 
 **Contributors:** SudoWP, WP Republic  
 **Original Authors:** Etison, LLC  
-**Tags:** clickfunnels, security-patch, legacy, landing pages, funnels  
+**Tags:** clickfunnels, security-patch, legacy, landing pages, funnels, sudowp  
 **Requires at least:** 4.3  
 **Tested up to:** 6.7  
 **Stable tag:** 0.1.1  
 **License:** GPLv2 or later  
 
-## ⚠️ Security Notice
+## Security Notice
 This is a **community-maintained fork** of the legacy ClickFunnels Classic plugin (v3.1.1). The original plugin is deprecated and contains unpatched security vulnerabilities.
 
 **This version patches CVE-2022-4782 (Stored XSS) and CVE-2022-47152 (CSRF)** by implementing strict sanitization, output escaping, and nonce verification.
@@ -17,7 +17,7 @@ This is a **community-maintained fork** of the legacy ClickFunnels Classic plugi
 
 ## Description
 
-**Zurich for ClickFunnels (SudoWP Edition)** allows you to connect your legacy ClickFunnels Classic (v1) account to your WordPress site. It is designed for users who need to maintain their existing integrations without exposing their sites to security risks.
+**SudoWP Zurich for ClickFunnels** allows you to connect your legacy ClickFunnels Classic (v1) account to your WordPress site. It is designed for users who need to maintain their existing integrations without exposing their sites to security risks.
 
 **Key Features:**
 * **Security Patched:** Fixes critical XSS and CSRF vulnerabilities found in the original vendor version.
@@ -44,10 +44,10 @@ This is a **community-maintained fork** of the legacy ClickFunnels Classic plugi
 ## Changelog
 
 ### Version 0.1.1
+* **Rebranding:** Renamed to `sudowp-clickfunnels-zurich` and standardized code prefixes.
 * **Security Fix:** Patched Cross-Site Request Forgery (CSRF) vulnerability in settings (CVE-2022-47152).
 * **Security Fix:** Patched Stored Cross-Site Scripting (XSS) vulnerability (CVE-2022-4782).
 * **Security:** Implemented strict data sanitization (`sanitize_text_field`, `esc_url`), output escaping (`esc_attr`, `esc_js`), and nonce verification.
-* **Optimization:** Implemented dynamic version constant to automate footer updates.
 
 ### Version 0.1.0
 * Initial release as Zurich for ClickFunnels (SudoWP Edition).

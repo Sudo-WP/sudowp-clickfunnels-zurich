@@ -1,9 +1,9 @@
 <div class="copyrightInfo">
     <p>
         <strong style="float: right;font-weight: 600;font-size: 11px;text-align: right;">
-            Running Version <?php echo defined('CF_ZURICH_VERSION') ? CF_ZURICH_VERSION : '0.1.0'; ?>
+            Running Version <?php echo defined('SUDOWP_CF_ZURICH_VERSION') ? SUDOWP_CF_ZURICH_VERSION : '0.1.0'; ?>
         </strong> 
-        Copyright <?php echo date("Y"); ?>+ &copy; WP Republic
+        Copyright <?php echo date("Y"); ?>+ &copy; SudoWP
     </p>
 </div>
 <style>
