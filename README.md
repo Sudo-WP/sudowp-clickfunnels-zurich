@@ -1,5 +1,9 @@
 # SudoWP Zurich for ClickFunnels
 
+![PHP Version](https://img.shields.io/badge/PHP-%3E%3D%208.2-777bb4.svg)
+![License](https://img.shields.io/badge/License-GPLv2%2B-blue.svg)
+![Status](https://img.shields.io/badge/Status-Security%20Hardened-green.svg)
+
 **Contributors:** SudoWP, WP Republic  
 **Original Authors:** Etison, LLC  
 **Tags:** clickfunnels, security-patch, legacy, landing pages, funnels, sudowp  
