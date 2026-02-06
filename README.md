@@ -47,6 +47,15 @@ This is a **community-maintained fork** of the legacy ClickFunnels Classic plugi
 
 ## Changelog
 
+### Version 0.1.2
+* **Security Hardening:** Comprehensive OWASP Top 10 2021 security audit
+* **Access Control:** Added capability checks to all admin pages
+* **Input Validation:** Enhanced sanitization of all $_GET, $_POST, and $_SERVER inputs
+* **Output Escaping:** Comprehensive output escaping with context-appropriate functions
+* **Cookie Security:** Added httponly and secure flags to cookies
+* **CSRF Protection:** Enhanced nonce verification across all forms
+* **Documentation:** Added SECURITY_NOTES.md with detailed security information
+
 ### Version 0.1.1
 * **Rebranding:** Renamed to `sudowp-clickfunnels-zurich` and standardized code prefixes.
 * **Security Fix:** Patched Cross-Site Request Forgery (CSRF) vulnerability in settings (CVE-2022-47152).

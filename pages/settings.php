@@ -47,6 +47,8 @@
       var tab = jQuery(this).attr('data-tab');
       jQuery('#'+tab).show();
 		});
+		// Note: API credentials are exposed to admin users only for AJAX calls
+		// This is a known limitation - ideally should use wp_ajax hooks
 		var funnelURL = <?php echo wp_json_encode( CF_API_URL . 'funnels/list?email=' . urlencode( get_option( 'clickfunnels_api_email' ) ) . '&auth_token=' . urlencode( get_option( 'clickfunnels_api_auth' ) ) ); ?>;
 		jQuery.getJSON(funnelURL, function(data) {
 		  jQuery('.checkSuccess').html('<i class="fa fa-check successGreen"></i>');

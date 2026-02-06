@@ -14,6 +14,8 @@
 
 <script type="text/javascript">
     function get_funnel_url(id) {
+      // Note: API credentials are exposed to admin users only for AJAX calls
+      // This is a known limitation - ideally should use wp_ajax hooks
       var js_api_url = <?php echo wp_json_encode( CF_API_URL ); ?>;
       var js_api_email = <?php echo wp_json_encode( $cf_authorization_email ); ?>;
       var js_api_token = <?php echo wp_json_encode( $cf_authorization_token ); ?>;
