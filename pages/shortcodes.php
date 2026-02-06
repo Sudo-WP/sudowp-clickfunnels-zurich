@@ -1,17 +1,22 @@
 <style>.hndle {display: none !important}</style>
 <?php
+    // Security: Capability check
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'sudowp-clickfunnels-zurich' ) );
+    }
+
     $cf_authorization_email = get_option( 'clickfunnels_api_email' );
     $cf_authorization_token = get_option( 'clickfunnels_api_auth' );
 ?>
 
-<link href="<?php echo plugins_url( '../css/admin.css', __FILE__ ); ?>" rel="stylesheet">
-<link href="<?php echo plugins_url( '../css/font-awesome.css', __FILE__ ); ?>" rel="stylesheet">
+<link href="<?php echo esc_url( plugins_url( '../css/admin.css', __FILE__ ) ); ?>" rel="stylesheet">
+<link href="<?php echo esc_url( plugins_url( '../css/font-awesome.css', __FILE__ ) ); ?>" rel="stylesheet">
 
 <script type="text/javascript">
     function get_funnel_url(id) {
-      var js_api_url = '<?php echo CF_API_URL ?>';
-      var js_api_email = '<?php echo $cf_authorization_email ?>';
-      var js_api_token = '<?php echo $cf_authorization_token ?>';
+      var js_api_url = <?php echo wp_json_encode( CF_API_URL ); ?>;
+      var js_api_email = <?php echo wp_json_encode( $cf_authorization_email ); ?>;
+      var js_api_token = <?php echo wp_json_encode( $cf_authorization_token ); ?>;
       var the_resource;
 
       if (id) {
@@ -282,7 +287,7 @@
 	<!-- Sidebar Navigation -->
 	<div class="bootstrap-wp">
 		<div id="app_sidebar">
-			<a href="#" data-tab="tab1" class="cftablink <?php if(!$_GET['error']) { echo 'active';} ?>">Embed Code</a>
+			<a href="#" data-tab="tab1" class="cftablink <?php if ( ! isset( $_GET['error'] ) ) { echo 'active';} ?>">Embed Code</a>
 			<a href="#" data-tab="tab2" class="cftablink">ClickPop</a>
 			<a href="#" data-tab="tab3" class="cftablink">ClickForms</a>
 		</div>
