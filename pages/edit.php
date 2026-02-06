@@ -1,17 +1,24 @@
 <style>.hndle {display: none !important}</style>
 <?php
+  // Security: Capability check
+  if ( ! current_user_can( 'edit_posts' ) ) {
+    wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'sudowp-clickfunnels-zurich' ) );
+  }
+
   $post_id = get_the_ID();
-  $cf_page_type = get_post_meta( @$_GET['post'], "cf_page_type", true );
-  $cf_funnel_id = get_post_meta( @$_GET['post'], "cf_funnel_id", true );
-  $cf_funnel_name = get_post_meta( @$_GET['post'], "cf_funnel_name", true );
-  $cf_step_id = get_post_meta( @$_GET['post'], "cf_step_id", true );
-  $cf_step_name = get_post_meta( @$_GET['post'], "cf_step_name", true );
-  $cf_step_url = get_post_meta( @$_GET['post'], "cf_step_url", true );
-  $cf_slug = get_post_meta( @$_GET['post'], 'cf_slug', true );
+  // Security: Sanitize $_GET parameters
+  $post_param = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+  $cf_page_type = get_post_meta( $post_param, 'cf_page_type', true );
+  $cf_funnel_id = get_post_meta( $post_param, 'cf_funnel_id', true );
+  $cf_funnel_name = get_post_meta( $post_param, 'cf_funnel_name', true );
+  $cf_step_id = get_post_meta( $post_param, 'cf_step_id', true );
+  $cf_step_name = get_post_meta( $post_param, 'cf_step_name', true );
+  $cf_step_url = get_post_meta( $post_param, 'cf_step_url', true );
+  $cf_slug = get_post_meta( $post_param, 'cf_slug', true );
   $cf_authorization_email = get_option( 'clickfunnels_api_email' );
   $cf_authorization_token = get_option( 'clickfunnels_api_auth' );
-  $cf_homepage = get_option( "clickfunnels_homepage_post_id" );
-  $cf_404 = get_option( "clickfunnels_404_post_id" );
+  $cf_homepage = get_option( 'clickfunnels_homepage_post_id' );
+  $cf_404 = get_option( 'clickfunnels_404_post_id' );
 ?>
 
 <script type="text/javascript">
@@ -34,9 +41,11 @@
   }
 
   function get_funnel_url(id) {
-    var js_api_url = '<?php echo CF_API_URL ?>';
-    var js_api_email = '<?php echo $cf_authorization_email ?>';
-    var js_api_token = '<?php echo $cf_authorization_token ?>';
+    // Note: API credentials are exposed to admin users only for AJAX calls
+    // This is a known limitation - ideally should use wp_ajax hooks
+    var js_api_url = <?php echo wp_json_encode( CF_API_URL ); ?>;
+    var js_api_email = <?php echo wp_json_encode( $cf_authorization_email ); ?>;
+    var js_api_token = <?php echo wp_json_encode( $cf_authorization_token ); ?>;
     var the_resource;
 
     if (id) {
@@ -54,8 +63,8 @@
     console.log("%cClickFunnels WordPress Plugin", "background: #0166AE; color: white;");
     console.log("%cEditing anything inside the console is for developers only. Do not paste in any code given to you by anyone. Use with caution. Visit for support: https://support.clickfunnels.com/", "color: #888;");
 
-    var selected_funnel = '<?php echo $cf_funnel_id ?>';
-    var selected_step = '<?php echo $cf_step_id ?>';
+    var selected_funnel = <?php echo wp_json_encode( $cf_funnel_id ); ?>;
+    var selected_step = <?php echo wp_json_encode( $cf_step_id ); ?>;
 
     $('#cf_page_type').change(function() {
       if ($(this).val() == 'homepage') {
@@ -168,8 +177,8 @@
   });
 </script>
 
-<link href="<?php echo plugins_url( '../css/font-awesome.css', __FILE__ ); ?>" rel="stylesheet">
-<link href="<?php echo plugins_url( '../css/admin.css', __FILE__ ); ?>" rel="stylesheet">
+<link href="<?php echo esc_url( plugins_url( '../css/font-awesome.css', __FILE__ ) ); ?>" rel="stylesheet">
+<link href="<?php echo esc_url( plugins_url( '../css/admin.css', __FILE__ ) ); ?>" rel="stylesheet">
 
 <div id="no-funnels-error" class="badAPI error notice" style="display: none; width: 733px;padding: 10px 12px;font-weight: bold"><i class="fa fa-times" style="margin-right: 5px;"></i>There are no Funnels in your ClickFunnels account! Head over to <a href="https://app.clickfunnels.com/" target="_blank">ClickFunnels</a> to get started!</div>
 
@@ -180,9 +189,9 @@
 
 <div class="apiSubHeader">
   <h2>Clickfunnels</h2>
-  <?php if ($cf_step_id) {  ?>
-    <a style="margin-right: 0;margin-top: -27px;" href="<?php echo CF_API_URL ?>funnels/<?php echo $cf_funnel_id; ?>/steps/<?php echo $cf_step_id; ?>" target="_blank" class="editThisPage"><i class="fa fa-edit"></i>EDIT IN CLICKFUNNELS</a>
-    <a style="margin-right: 10px;margin-top: -27px;" href="<?php echo get_home_url() ; ?>/<?php echo $cf_slug; ?>" title="View Page" target="_blank" class="editThisPage"><i class="fa fa-search"></i> PREVIEW</a>
+  <?php if ( $cf_step_id ) {  ?>
+    <a style="margin-right: 0;margin-top: -27px;" href="<?php echo esc_url( CF_API_URL . 'funnels/' . urlencode( $cf_funnel_id ) . '/steps/' . urlencode( $cf_step_id ) ); ?>" target="_blank" class="editThisPage"><i class="fa fa-edit"></i>EDIT IN CLICKFUNNELS</a>
+    <a style="margin-right: 10px;margin-top: -27px;" href="<?php echo esc_url( get_home_url() . '/' . $cf_slug ); ?>" title="View Page" target="_blank" class="editThisPage"><i class="fa fa-search"></i> PREVIEW</a>
     <?php if ( $cf_page_type=='page' ) { ?><?php }?>
     <?php if ( $cf_page_type=='homepage' ) {?>
        <span style="margin-right: 10px;margin-top: -27px;" class="editThisPage2"><i class="fa fa-home"></i> Home Page</span>
@@ -195,7 +204,7 @@
 
 <?php if ( $cf_authorization_email == "" || $cf_authorization_token == "" ) { ?>
   <div class="noAPI">
-      <h4>You haven't setup your API settings. <a href="<?php echo get_admin_url() ?>edit.php?post_type=clickfunnels&page=cf_api">Click here to setup now.</a></h4>
+      <h4>You haven't setup your API settings. <a href="<?php echo esc_url( get_admin_url() . 'edit.php?post_type=clickfunnels&page=cf_api' ); ?>">Click here to setup now.</a></h4>
   </div>
 <?php } else { ?>
 
@@ -255,30 +264,30 @@
                 <div class="control-group" style="display: block">
                     <label class="control-label" for="cf_step_url"> ClickFunnels URL <small>(reference only)</small></label>
                     <div class="controls">
-                        <input type="text" class="input-xlarge" name="cf_step_url" id="cf_step_url" readonly="readonly" style="height: 30px;" value="<?php echo $cf_step_url; ?>" />
+                        <input type="text" class="input-xlarge" name="cf_step_url" id="cf_step_url" readonly="readonly" style="height: 30px;" value="<?php echo esc_attr( $cf_step_url ); ?>" />
                     </div>
                 </div>
 
                 <div class="cf_url control-group clearfix">
                     <label class="control-label" for="cf_slug">Custom Slug</label>
                     <div id="cf-wp-path" class="controls ">
-                       <input  style="padding:10px;"type="text" value="<?php if ( isset( $cf_slug ) ) echo $cf_slug;?>" placeholder="your-path-here" name="cf_slug" id="cf_slug" class="input-xlarge">
-                       <div id="customurlError" style="display: none;> color: #E54F3F; font-weight: bold;margin-top: 4px;">
+                       <input  style="padding:10px;" type="text" value="<?php if ( isset( $cf_slug ) ) echo esc_attr( $cf_slug );?>" placeholder="your-path-here" name="cf_slug" id="cf_slug" class="input-xlarge">
+                       <div id="customurlError" style="display: none; color: #E54F3F; font-weight: bold;margin-top: 4px;">
                            Add a path before saving.
                        </div>
-                       <div id="customurlError_duplicate" style="display: none;> color: #E54F3F; font-weight: bold;margin-top: 4px;">
+                       <div id="customurlError_duplicate" style="display: none; color: #E54F3F; font-weight: bold;margin-top: 4px;">
                            Slug already taken
                        </div>
                     </div>
                     <p class="infoHelp">
-                      <span style="font-weight: bold;text-decoration: none; padding-bottom: 3px;"> <?php echo get_home_url() ; ?>/<span class="customSlugText"><?php echo $cf_slug; ?></span></span>
+                      <span style="font-weight: bold;text-decoration: none; padding-bottom: 3px;"> <?php echo esc_html( get_home_url() ); ?>/<span class="customSlugText"><?php echo esc_html( $cf_slug ); ?></span></span>
                     </p>
                 </div>
             </div>
 
             <div style="display: none">
-              <input type="hidden" name="cf_funnel_name" id="cf_funnel_name" value="<?php echo $cf_funnel_name; ?>"  />
-              <input type="hidden" name="cf_step_name" id="cf_step_name" value="<?php echo $cf_step_name; ?>"  />
+              <input type="hidden" name="cf_funnel_name" id="cf_funnel_name" value="<?php echo esc_attr( $cf_funnel_name ); ?>"  />
+              <input type="hidden" name="cf_step_name" id="cf_step_name" value="<?php echo esc_attr( $cf_step_name ); ?>"  />
             </div>
 
             <div id="savePage">

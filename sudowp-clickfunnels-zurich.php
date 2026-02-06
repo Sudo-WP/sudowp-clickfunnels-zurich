@@ -56,7 +56,12 @@ class SudoWPClickFunnelsZurich {
 			}
 		}
 
-		$full_request_url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		// Security: Validate server variables
+		if ( ! isset( $_SERVER['HTTP_HOST'] ) || ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return;
+		}
+
+		$full_request_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) . sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		$request_url_parts = explode( '?', $full_request_url );
 		$request_url = $request_url_parts[0];
 		$base_url = get_home_url() . '/';
@@ -139,7 +144,18 @@ class SudoWPClickFunnelsZurich {
 		// Forward Set-Cookie headers from ClickFunnels to the browser
 		$response_cookies = wp_remote_retrieve_cookies( $response );
 		foreach ( $response_cookies as $cookie ) {
-			setcookie( $cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain );
+			// Security: Add secure and httponly flags for cookies
+			$secure = is_ssl();
+			$httponly = true;
+			setcookie( 
+				$cookie->name, 
+				$cookie->value, 
+				$cookie->expires ? $cookie->expires : 0, 
+				$cookie->path ? $cookie->path : '/', 
+				$cookie->domain ? $cookie->domain : '', 
+				$secure, 
+				$httponly 
+			);
 		}
 
 		return wp_remote_retrieve_body( $response );
@@ -197,12 +213,27 @@ class SudoWPClickFunnelsZurich {
 	}
 
 	public function save_meta( int $post_id ): void {
+		// Security: Nonce verification for save operations
+		if ( ! isset( $_POST['clickfunnel_nonce'] ) || ! wp_verify_nonce( $_POST['clickfunnel_nonce'], 'save_clickfunnel' ) ) {
+			return;
+		}
+
+		// Security: Check user permissions
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		// Prevent autosave
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
 		// SudoWP: Replaced @ error suppression with checks
 		if ( ! isset( $_POST['post_type'] ) || $_POST['post_type'] != 'clickfunnels' ) {
 			return;
 		}
 
-		// Basic sanitization
+		// Basic sanitization with wp_unslash
 		$fields = [
 			'cf_slug', 'cf_page_type', 'cf_step_id', 'cf_step_name', 
 			'cf_funnel_id', 'cf_funnel_name', 'cf_step_url'
@@ -210,7 +241,14 @@ class SudoWPClickFunnelsZurich {
 
 		foreach ( $fields as $field ) {
 			if ( isset( $_POST[ $field ] ) ) {
-				update_post_meta( $post_id, $field, sanitize_text_field( $_POST[ $field ] ) );
+				$value = wp_unslash( $_POST[ $field ] );
+				// Additional validation for URLs
+				if ( $field === 'cf_step_url' ) {
+					$value = esc_url_raw( $value );
+				} else {
+					$value = sanitize_text_field( $value );
+				}
+				update_post_meta( $post_id, $field, $value );
 			}
 		}
 
@@ -220,7 +258,7 @@ class SudoWPClickFunnelsZurich {
 			$this->set_home( null );
 		}
 
-		$cf_page_type = isset( $_POST['cf_page_type'] ) ? $_POST['cf_page_type'] : '';
+		$cf_page_type = isset( $_POST['cf_page_type'] ) ? sanitize_text_field( wp_unslash( $_POST['cf_page_type'] ) ) : '';
 
 		if ( $cf_page_type == 'homepage' ) {
 			$this->set_home( $post_id );

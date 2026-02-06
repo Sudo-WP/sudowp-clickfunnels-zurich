@@ -1,11 +1,22 @@
-<link href="<?php echo plugins_url( '../css/font-awesome.css', __FILE__ ); ?>" rel="stylesheet">
-<link href="<?php echo plugins_url( '../css/admin.css', __FILE__ ); ?>" rel="stylesheet">
+<link href="<?php echo esc_url( plugins_url( '../css/font-awesome.css', __FILE__ ) ); ?>" rel="stylesheet">
+<link href="<?php echo esc_url( plugins_url( '../css/admin.css', __FILE__ ) ); ?>" rel="stylesheet">
+<?php
+	// Security: Capability check
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'sudowp-clickfunnels-zurich' ) );
+	}
+
+	// Security: Nonce verification
+	if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'reset_clickfunnels_data' ) ) {
+		wp_die( esc_html__( 'Security check failed. Please try again.', 'sudowp-clickfunnels-zurich' ) );
+	}
+?>
 <span style="margin: 15px 0;width: 650px" class="compatCheck compatwarning">
 	Deleting ClickFunnels Pages &amp; API Settings...
 	<strong><i class="fa fa-spinner fa-spin"></i> Please wait just a moment.</strong>
 </span>
 <div id="progress" style="width:670px;margin-bottom: 10px;height: 10px;border-bottom:4px solid #D04738;background: #E54F3F;"></div>
-<?php echo 'Deleting <strong>'.wp_count_posts( 'clickfunnels' )->publish.'</strong> pages...'; ?>
+<?php echo 'Deleting <strong>' . absint( wp_count_posts( 'clickfunnels' )->publish ) . '</strong> pages...'; ?>
 <div id="information" style="width"></div>
 <?php
 	$args = array(
